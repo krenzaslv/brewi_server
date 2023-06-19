@@ -1,293 +1,75 @@
 <html>
     <head>
-
+        <!-- Chart stuff -->
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.5.1/chart.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
-        <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css"> -->
-        <!-- <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300italic,700,700italic"> -->
-        <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.css"> -->
+        <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-autocolors"></script>
+
+        <!-- Css stuff -->
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300italic,700,700italic">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.css">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/milligram/1.4.1/milligram.css">
-        <style>
-.Chart{
-    width: 500px;
-}
+        <link rel="stylesheet" href="/static/style.css">
 
-.form{
-    width: 500px;
-}
-.row {
-  display: flex;
-}
+        <!-- Faficon stuff -->
+        <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="/static/favicon/favicon-16x16.png">
+        <link rel="manifest" href="/static/favicon/site.webmanifest">
 
-.column {
-  flex: 50%;
-}
-
-        </style>
 
     </head>
     <body>
-     <main class="container">
-    <div class="row">
-    <div class="column">
+        <main class="container">
 
-        <div class="form">
-            <!-- <form id="myform"> -->
+            <h1>Brewi Command Central</h1>
+            <div class="row">
+                <div class="column">
 
-                <label for="is_activated">Control Activated</label>
-                <input type="checkbox" id="is_activated" name="is_activated"><br><br>
+                    <div id="form" class="form">
 
-                <label for="override_pid">Override PID</label>
-                <input type="checkbox" id="override_pid" name="override_pid"><br><br>
+                        <label for="is_activated">Control Activated</label>
+                        <input type="text" id="is_activated" name="is_activated" value="0"><br><br>
 
-                <label for="esp_ip">IP</label>
-                <input type="text" id="esp_ip" name="IP" value="10.0.22.55"><br><br>
+                        <label for="override_pid">Override PID</label>
+                        <input type="text" id="override_pid" name="override_pid" value="0"><br><br>
 
-                <label for="target_temp">Target Temp</label>
-                <input type="text" id="target_temp" name="target_temp" value="30"><br><br>
+                        <label for="esp_ip">IP</label>
+                        <input type="text" id="esp_ip" name="IP" value="10.0.22.55"><br><br>
 
-                <label for="kp">Kp</label>
-                <input type="text" id="kp" name="kp" value="1"><br><br>
+                        <label for="target_temp">Target Temp</label>
+                        <input type="text" id="target_temp" name="target_temp" value="30"><br><br>
 
-                <label for="t_i">Ti</label>
-                <input type="text" id="ti" name="ti" value="50"><br><br>
+                        <label for="kp">Kp</label>
+                        <input type="text" id="kp" name="kp" value="0.7"><br><br>
 
-                <label for="td">Td</label>
-                <input type="text" id="td" name="kp" value="25"><br><br>
+                        <label for="t_i">Ti</label>
+                        <input type="text" id="ti" name="ti" value="50"><br><br>
 
-                <button id="submitButton" onclick"fuckYou()">Submit</button> 
+                        <label for="td">Td</label>
+                        <input type="text" id="td" name="kp" value="25"><br><br>
 
-            <!-- </form> -->
-        </div>
+                        <button id="submitButton">Submit</button> 
 
-        </div>
+                    </div>
 
-        <div class="column">
+                </div>
 
-        <div class="Chart">
-            <canvas id="temperatureChart"></canvas>
-        </div>
-        <div class="Chart">
-            <canvas id="pidChart"></canvas>
-        </div>
-        <div class="Chart">
-            <canvas id="onChart"></canvas>
-        </div>
+                <div class="column">
 
-        <script>
-            const ctxTemp = document.getElementById('temperatureChart');
-            const ctxPID= document.getElementById('pidChart');
-            const ctxOn = document.getElementById('onChart');
+                    <div class="Chart">
+                        <canvas id="temperatureChart"></canvas>
+                    </div>
+                    <div class="Chart">
+                        <canvas id="pidChart"></canvas>
+                    </div>
+                    <div class="Chart">
+                        <canvas id="onChart"></canvas>
+                    </div>
 
-            log_labels = [];
-            temperature_data = [];
-            pd_data = [];
-            pi_data = [];
-            pp_data = [];
-            pid_data = [];
-            target_temperature_data = [];
-            is_heating_data = [];
-            duty_cycle_data = [];
-            activated_data = [];
-
-
-            n = 0;
-
-            const temperatureChart = new Chart(ctxTemp, {
-                type: 'line',
-                data: {
-                    labels : log_labels,
-                    datasets: [{
-                        label: 'Temperature',
-                        data: temperature_data,
-                        borderWidth: 2,
-                        borderColor: 'rgb(75, 192, 192)',
-                        backgroundColor: 'rgb(75, 192, 192)',
-                        tension: 0.1
-                    },
-                        {
-                            label: 'Target Temperature',
-                            data: target_temperature_data,
-                            borderWidth: 3
-                        }
-                    ]
-                },
-                options: {
-                    elements: {
-                        point:{
-                            radius: 0
-                        }
-                    },
-                    responsive: true,
-                    scales: {
-                        x: {
-                            type: 'time',
-                            time: {
-                                unit: 'minute'
-                            }
-                        }
-                    }
-                }
-            });
-
-            const PIDChart = new Chart(ctxPID, {
-                type: 'line',
-                data: {
-                    labels : log_labels,
-                    datasets: [
-                        {
-                            label: 'PD',
-                            data: pd_data,
-                            borderWidth: 5,
-                            tension: 0.1,
-                            borderColor: 'rgb(75, 192, 192)',
-                            backgroundColor: 'rgb(75, 192, 192)',
-                        },
-                        {
-                            label: 'PP',
-                            data: pp_data,
-                            borderWidth: 5,
-                            tension: 0.1,
-                            borderColor: 'rgba(54, 162, 235, 0.2)',
-                            backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                        },
-                        {
-                            label: 'PI',
-                            data: pi_data,
-                            borderWidth: 5,
-                            tension: 0.1,
-                            borderColor: 'rgba(255, 206, 86, 0.2)',
-                            backgroundColor:  'rgba(255, 206, 86, 0.2)',
-                        },
-                        {
-                            label: 'PI',
-                            data: pid_data,
-                            borderWidth: 5,
-                            tension: 0.1,
-                            borderColor: 'red',
-                            backgroundColor:  'red',
-                        },
-                    ]
-                },
-                options: {
-                    elements: {
-                        point:{
-                            radius: 0
-                        }
-                    },
-                    responsive: true,
-                    scales: {
-                        x: {
-                            type: 'time',
-                            time: {
-                                unit: 'minute'
-                            }
-                        }
-                    }
-                }
-            });
-
-            const onChart = new Chart(ctxOn, {
-                type: 'line',
-                data: {
-                    labels : log_labels,
-                    datasets: [{
-                        label: 'Duty Cycle',
-                        data: duty_cycle_data,
-                        borderWidth: 5,
-                        borderColor: 'rgb(75, 192, 192)',
-                        backgroundColor: 'rgb(75, 192, 192)',
-                        tension: 0.1
-                    },
-                        {
-                            label: 'Is Heating',
-                            data: is_heating_data,
-                            borderWidth: 5,
-                            tension: 0.1,
-                            borderColor: 'rgba(54, 162, 235, 0.2)',
-                            backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                        },
-                        {
-                            label: 'Is activated',
-                            data: activated_data,
-                            borderWidth: 5,
-                            tension: 0.1,
-                            borderColor: 'rgba(255, 206, 86, 0.2)',
-                            backgroundColor:  'rgba(255, 206, 86, 0.2)',
-                        },
-                    ]
-                },
-                options: {
-                    elements: {
-                        point:{
-                            radius: 0
-                        }
-                    },
-                    responsive: true,
-                    scales: {
-                        x: {
-                            type: 'time',
-                            time: {
-                                unit: 'minute'
-                            }
-                        }
-                    }
-                }
-            });
-
-        </script>
-        <script>
-
-            const getTemperature = async () => {
-                const response = await fetch('http://localhost:8080/log', {method: 'GET'});
-                const data = await response.json(); 
-
-                if (data.temperature.length > n){
-                    for (let i = n; i < data.temperature.length; i++) {
-                        temperature_data.push(data.temperature[i]);
-                        log_labels.push(data.timestamp[i]);
-                        target_temperature_data.push(data.target_temperature[i]);
-                        pd_data.push(data.pd_gain_scaled[i]);
-                        pi_data.push(data.pi_gain_scaled[i]);
-                        pid_data.push(data.pid_gain[i]);
-                        pp_data.push(data.pp_gain_scaled[i]);
-
-                        is_heating_data.push(data.is_heating[i]);
-                        activated_data.push(data.is_activated[i]);
-                        duty_cycle_data.push(data.duty_cycle[i]);
-                    }
-                    n = data.temperature.length;
-                }
-
-
-                temperatureChart.update();
-                PIDChart.update();
-                onChart.update();
-
-            }
-            setInterval(getTemperature, 1000);
-
-            const postControl = async () => {
-
-                fetch('http://localhost:8080/control', {
-                    method: "POST",
-                    headers: {"content-type": "application/json"},
-                    body: JSON.stringify({
-                        ip: document.getElementById('esp_ip').value,
-                        override_pid: document.getElementById('override_pid').value,
-                        target_temperature: document.getElementById('target_temp').value,
-                        is_activated: document.getElementById('is_activated').value,
-                        k_p: document.getElementById('kp').value,
-                        t_i: document.getElementById('ti').value,
-                        t_d: document.getElementById('td').value,
-                    })})
-            }
-
-            document.getElementById("submitButton").addEventListener("click", postControl);
-        </script>
-        </div>
-    </main>
+                </div>
+        </main>
+        <script src="/static/main.js"></script>
     </body>
 </html>

@@ -4,6 +4,7 @@ from pydantic import  BaseModel
 from sqlalchemy.ext.declarative import declarative_base
 from os.path import exists
 from typing import Optional
+from fastapi.staticfiles import StaticFiles
 
 import pandas as pd
 import random
@@ -12,6 +13,8 @@ import json
 import httpx
 
 app = FastAPI()
+
+app.mount("/static", StaticFiles(directory="app/ui"), name="ui")
 
 data_path = "/data/temperature.csv" 
 control_path = "/data/command.csv" 
@@ -26,10 +29,14 @@ class ControlMsg(BaseModel):
     t_d: float
 
 class Log(BaseModel):
-    temperature: float
+    temperatureAvg: float
+    temperatureExp: float
+    temperatureKalman: float
     target_temperature: float 
     duty_cycle: float
     is_heating: bool 
+    is_activated : bool
+    override_pid: bool
     pd_gain: float
     pp_gain: float
     pi_gain: float
@@ -37,6 +44,9 @@ class Log(BaseModel):
     pp_gain_scaled: float
     pi_gain_scaled: float
     pid_gain: float
+    k_p: float
+    t_i: float
+    t_d: float
 
     timestamp: Optional[datetime.date]
 

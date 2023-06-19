@@ -1,0 +1,15 @@
+.Chart{
+    width: 500px;
+}
+
+.form{
+    width: 500px;
+}
+.row {
+    display: flex;
+}
+
+.column {
+    flex: 50%;
+}
+
