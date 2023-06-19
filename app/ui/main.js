@@ -3,7 +3,7 @@ const ctxPID= document.getElementById('pidChart');
 const ctxOn = document.getElementById('onChart');
 
 log_labels = [];
-temperature= [];
+temperature = [];
 temperature_avg= [];
 temperature_exp= [];
 temperature_kalman= [];
@@ -30,31 +30,31 @@ const temperatureChart = new Chart(ctxTemp, {
         datasets: [
             {
                 label: 'Temperatur',
-                data: temperature
-                // borderWidth: 2,
-                // tension: 0.1
+                data: temperature,
+                borderWidth: 2,
+                tension: 0.1
             },
             {
                 label: 'Temperatur AVG',
-                data: temperature_avg
-                // borderWidth: 2,
-                // tension: 0.1
+                data: temperature_avg,
+                borderWidth: 2,
+                tension: 0.1
             },
             {
                 label: 'Temperatur Exp',
-                data: temperature_avg
-                // borderWidth: 2,
-                // tension: 0.1
+                data: temperature_exp,
+                borderWidth: 2,
+                tension: 0.1
             },
             {
                 label: 'Temperatur Kalman',
-                data: temperature_avg
-                // borderWidth: 2,
-                // tension: 0.1
+                data: temperature_kalman,
+                borderWidth: 2,
+                tension: 0.1
             },
             {
                 label: 'Target Temperature',
-                data: target_temperature_data
+                data: target_temperature_data,
                 // borderWidth: 3
             }
         ]
@@ -165,8 +165,7 @@ const onChart = new Chart(ctxOn, {
 const getTemperature = async () => {
     const response = await fetch('http://localhost:8080/log', {method: 'GET'});
     const data = await response.json(); 
-
-    if (data.temperature.length > n){
+    if (Object.keys(data).length && data.temperature.length > n){
         for (let i = n; i < data.temperature.length; i++) {
             temperature.push(data.temperature[i]);
             temperature_avg.push(data.temperatureAvg[i]);

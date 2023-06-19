@@ -29,6 +29,7 @@ class ControlMsg(BaseModel):
     t_d: float
 
 class Log(BaseModel):
+    temperature: float
     temperatureAvg: float
     temperatureExp: float
     temperatureKalman: float
