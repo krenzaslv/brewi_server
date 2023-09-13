@@ -184,7 +184,8 @@ const getTemperature = async () => {
         }
         n = data.temperature.length;
     }
-
+    
+    document.getElementById("temperature").innerHTML = Number(temperature_avg[temperature_avg.length - 1]).toFixed(2) + "&deg;C";
 
     temperatureChart.update();
     PIDChart.update();

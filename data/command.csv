@@ -1,1 +1,1 @@
-{"ip": "10.0.22.55", "override_pid": false, "target_temperature": 80.0, "is_activated": true, "k_p": 1.0, "t_i": 50.0, "t_d": 40.0}
+{"ip": "10.0.22.79", "override_pid": false, "target_temperature": 30.0, "is_activated": true, "k_p": 0.5, "t_i": 60.0, "t_d": 40.0}

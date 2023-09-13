@@ -49,7 +49,7 @@ class Log(BaseModel):
     t_i: float
     t_d: float
 
-    timestamp: Optional[datetime.date]
+    timestamp: Optional[datetime.date] = None
 
 @app.get("/")
 async def home():
